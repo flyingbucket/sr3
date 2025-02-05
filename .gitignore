@@ -131,5 +131,5 @@ dmypy.json
 
 *.lmdb
 
-# other data
-16_128/
+# vscode settings
+.vscode/
