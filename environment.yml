@@ -12,6 +12,7 @@ dependencies:
   - pillow
   - pytorch>=1.6
   - torchvision
+  - scipy
   - pip
   - pip:
       - tensorboardx
