@@ -1,0 +1,19 @@
+name: sar # 你可以修改为自己想要的环境名称
+channels:
+  - conda-forge
+  - defaults
+  - pytorch
+dependencies:
+  - python=3.9  # 你可以修改 Python 版本
+  - numpy
+  - pandas
+  - tqdm
+  - opencv
+  - pillow
+  - pytorch>=1.6
+  - torchvision
+  - pip
+  - pip:
+      - tensorboardx
+      - wandb
+      - lmdb
