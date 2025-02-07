@@ -18,7 +18,7 @@
             "mode": "HR", // whether need LR img
             "dataroot": "dataset/WHU_cropped",      
             "datatype": "img", //lmdb or img, path of img files
-            "l_resolution": 926, // low resolution need to super_resolution
+            "l_resolution": 640, // low resolution need to super_resolution
             "r_resolution": 2560, // high resolution
             "batch_size": 1,
             "num_workers": 8,
@@ -30,7 +30,7 @@
             "mode": "LRHR",
             "dataroot": "dataset/WHU_cropped",
             "datatype": "img", //lmdb or img, path of img files
-            "l_resolution": 926,
+            "l_resolution": 640,
             "r_resolution": 2560,
             "data_len": 50
         }
