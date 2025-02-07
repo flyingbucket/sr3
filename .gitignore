@@ -136,6 +136,7 @@ dmypy.json
 
 # dataset
 dataset/
+*.zip
 
 # models and training log
 experiments/ 
