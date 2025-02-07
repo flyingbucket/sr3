@@ -43,7 +43,7 @@ def downsample_image(image, sigma=1.5, scale_factor=4):
 
 
 def process_single(input_path, out_ds_folder,out_hr_folder, tag,counter):
-    size = 2560
+    size = 512
     with rasterio.open(input_path) as src:
         if tag == 'tl':
             info = (0, 0, size, size)
@@ -94,6 +94,6 @@ def process_all(input_folder, out_ds_folder, out_hr_folder):
 
 if __name__ == "__main__":
     input_folder = "dataset/WHU"
-    out_ds_folder = "dataset/WHU_cropped/lr_926"
-    out_hr_folder = "dataset/WHU_cropped/hr_2560"
+    out_ds_folder = "dataset/WHU_512/lr_926"
+    out_hr_folder = "dataset/WHU_512/hr_512"
     process_all(input_folder, out_ds_folder, out_hr_folder)      
