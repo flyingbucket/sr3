@@ -13,6 +13,7 @@ dependencies:
   - pytorch>=1.6
   - torchvision
   - scipy
+  - rasterio
   - pip
   - pip:
       - tensorboardx

@@ -16,10 +16,10 @@
         "train": {
             "name": "WHU",
             "mode": "HR", // whether need LR img
-            "dataroot": "dataset/WHU_cropped",      
+            "dataroot": "dataset/WHU_512",      
             "datatype": "img", //lmdb or img, path of img files
-            "l_resolution": 640, // low resolution need to super_resolution
-            "r_resolution": 2560, // high resolution
+            "l_resolution": 128, // low resolution need to super_resolution
+            "r_resolution": 512, // high resolution
             "batch_size": 1,
             "num_workers": 8,
             "use_shuffle": true,
@@ -28,10 +28,10 @@
         "val": {
             "name": "WHU_cropped",
             "mode": "LRHR",
-            "dataroot": "dataset/WHU_cropped",
+            "dataroot": "dataset/WHU_512",
             "datatype": "img", //lmdb or img, path of img files
-            "l_resolution": 640,
-            "r_resolution": 2560,
+            "l_resolution": 128,
+            "r_resolution": 512,
             "data_len": 50
         }
     },
@@ -73,7 +73,7 @@
             }
         },
         "diffusion": {
-            "image_size": 2560,
+            "image_size": 512,
             "channels": 3, //sample channel
             "conditional": true // unconditional generation or unconditional generation(super_resolution)
         }
