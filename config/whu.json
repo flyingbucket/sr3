@@ -1,9 +1,7 @@
 {
     "name": "distributed_high_sr_ffhq",
     "phase": "train", // train or val
-    "gpu_ids": [
-        0,1
-    ],
+    "gpu_ids": [0],
     "path": { //set the path
         "log": "logs",
         "tb_logger": "tb_logger",
@@ -16,21 +14,23 @@
         "train": {
             "name": "WHU",
             "mode": "HR", // whether need LR img
-            "dataroot": "dataset/WHU_512",      
+            "dataroot": "dataset/WHU_64_512",      
             "datatype": "img", //lmdb or img, path of img files
-            "l_resolution": 128, // low resolution need to super_resolution
+            "l_resolution": 64, // low resolution need to super_resolution
             "r_resolution": 512, // high resolution
-            "batch_size": 1,
+            "batch_size": 2,
             "num_workers": 8,
             "use_shuffle": true,
-            "data_len": -1 // -1 represents all data used in train
+            "data_len": -1, // -1 represents all data used in train
+            "pin_memory": true,
+            "persistent_workers": true
         },
         "val": {
             "name": "WHU_cropped",
             "mode": "LRHR",
-            "dataroot": "dataset/WHU_512",
+            "dataroot": "dataset/WHU_64_512",
             "datatype": "img", //lmdb or img, path of img files
-            "l_resolution": 128,
+            "l_resolution": 64,
             "r_resolution": 512,
             "data_len": 50
         }
@@ -47,10 +47,9 @@
                 1,
                 2,
                 4,
-                8,
                 // 8,
-                // 16,
-                19266
+                // 16
+                8
             ],
             "attn_res": [
                 // 16
