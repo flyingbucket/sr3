@@ -26,7 +26,7 @@
             "persistent_workers": true
         },
         "val": {
-            "name": "WHU_cropped",
+            "name": "WHU_512",
             "mode": "LRHR",
             "dataroot": "dataset/WHU_64_512",
             "datatype": "img", //lmdb or img, path of img files
