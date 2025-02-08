@@ -9,8 +9,8 @@
         "tb_logger": "tb_logger",
         "results": "results",
         "checkpoint": "checkpoint",
-        // "resume_state": "experiments/distributed_high_sr_ffhq_210901_121212/checkpoint/I830000_E32" //pretrain model or training state
-        "resume_state": "experiments/WHU_250308_133523/checkpoint/I5000_E38" //pretrain model or training state
+        // "resume_state": "experiments/WHU_250308_133523/checkpoint/I5000_E38" //pretrain model or training state
+        "resume_state": null
     },
     "datasets": {
         "train": {
@@ -55,7 +55,7 @@
                 // 16
             ],
             "attn_res": [
-                64
+               64 
             ],
             "res_blocks": 1,
             "dropout": 0
@@ -64,14 +64,14 @@
             "train": {
                 "schedule": "linear",
                 "n_timestep": 200,
-                "linear_start": 1e-8,
-                "linear_end": 1e-4
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
             },
             "val": {
                 "schedule": "linear",
                 "n_timestep": 200,
-                "linear_start": 1e-8,
-                "linear_end": 1e-4
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
             }
         },
         "diffusion": {
@@ -81,18 +81,18 @@
         }
     },
     "train": {
-        "n_iter": 5000,
-        "val_freq": 5e2,
-        "save_checkpoint_freq": 5e2,
-        "print_freq": 20,
+        "n_iter": 100000,
+        "val_freq": 1e3,
+        "save_checkpoint_freq": 1e3,
+        "print_freq": 50,
         "optimizer": {
             "type": "adam",
-            "lr": 1e-5
+            "lr": 1e-4
         },
         "ema_scheduler": { // not used now
-            "step_start_ema": 1000,
+            "step_start_ema": 10000,
             "update_ema_every": 1,
-            "ema_decay": 0.9999
+            "ema_decay": 0.99995
         }
     },
     "wandb": {

@@ -17,5 +17,6 @@ dependencies:
   - pip
   - pip:
       - tensorboardx
+      - tensorboard
       - wandb
       - lmdb
