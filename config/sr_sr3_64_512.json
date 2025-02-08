@@ -9,8 +9,8 @@
         "tb_logger": "tb_logger",
         "results": "results",
         "checkpoint": "checkpoint",
-        "resume_state": null
-        // "resume_state": "experiments/distributed_high_sr_ffhq_210901_121212/checkpoint/I830000_E32" //pretrain model or training state
+        // "resume_state": null
+        "resume_state": "experiments/distributed_high_sr_ffhq_250208_112542/checkpoint/I100_E25" //pretrain model or training state
     },
     "datasets": {
         "train": {
@@ -28,11 +28,11 @@
         "val": {
             "name": "CelebaHQ",
             "mode": "LRHR",
-            "dataroot": "dataset/celebahq_64_512",
+            "dataroot": "dataset/ffhq_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64,
             "r_resolution": 512,
-            "data_len": 50
+            "data_len": -1
         }
     },
     "model": {
@@ -80,12 +80,13 @@
     },
     "train": {
         "n_iter": 200,
-        "val_freq": 1e4,
+        "val_freq": 1e2,
         "save_checkpoint_freq": 1e2,
         "print_freq": 50,
         "optimizer": {
             "type": "adam",
-            "lr": 3e-6
+            // "lr": 3e-6
+            "lr": 1e-4
         },
         "ema_scheduler": { // not used now
             "step_start_ema": 5000,
