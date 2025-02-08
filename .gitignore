@@ -136,6 +136,7 @@ dmypy.json
 
 # dataset
 dataset/
+dataset.bak/
 *.zip
 
 # models and training logs
