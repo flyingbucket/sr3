@@ -1,29 +1,26 @@
 {
     "name": "WHU",
     "phase": "train", // train or val
-    "gpu_ids": [0,1,2],
+    "gpu_ids": [
+        0
+    ],
     "path": { //set the path
         "log": "logs",
         "tb_logger": "tb_logger",
         "results": "results",
         "checkpoint": "checkpoint",
-        // "resume_state": "experiments/WHU/checkpoint/I200_E1"
-        // "resume_state": "experiments/distributed_high_sr_ffhq_210901_121212/checkpoint/I830000_E32" //pretrain model or training state
-        "resume_state": null 
+        // "resume_state": "experiments/WHU_250308_133523/checkpoint/I5000_E38" //pretrain model or training state
+        "resume_state": null
     },
     "datasets": {
         "train": {
             "name": "WHU",
             "mode": "HR", // whether need LR img
-            "dataroot": "dataset/WHU_64_512",      
+            "dataroot": "dataset/WHU_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64, // low resolution need to super_resolution
             "r_resolution": 512, // high resolution
-<<<<<<< HEAD
-            "batch_size": 8,
-=======
-            "batch_size": 1,
->>>>>>> 3b974f9 (add env_note)
+            "batch_size": 3,
             "num_workers": 8,
             "use_shuffle": true,
             "data_len": -1, // -1 represents all data used in train
@@ -55,11 +52,11 @@
                 // 8,
                 // 16
                 8
-		        // 16
+                // 16
             ],
             "attn_res": [
-            	64
-	    ],
+               64 
+            ],
             "res_blocks": 1,
             "dropout": 0
         },
@@ -67,14 +64,14 @@
             "train": {
                 "schedule": "linear",
                 "n_timestep": 200,
-                "linear_start": 1e-8,
-                "linear_end": 1e-4
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
             },
             "val": {
                 "schedule": "linear",
                 "n_timestep": 200,
-                "linear_start": 1e-8,
-                "linear_end": 1e-4
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
             }
         },
         "diffusion": {
@@ -85,17 +82,17 @@
     },
     "train": {
         "n_iter": 100000,
-        "val_freq": 1e4,
+        "val_freq": 1e3,
         "save_checkpoint_freq": 1e3,
-        "print_freq": 20,
+        "print_freq": 50,
         "optimizer": {
             "type": "adam",
-            "lr": 3e-6
+            "lr": 1e-4
         },
         "ema_scheduler": { // not used now
-            "step_start_ema": 500,
+            "step_start_ema": 10000,
             "update_ema_every": 1,
-            "ema_decay": 0.9999
+            "ema_decay": 0.99995
         }
     },
     "wandb": {

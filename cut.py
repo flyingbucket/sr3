@@ -4,15 +4,16 @@ from rasterio.windows import Window
 from tqdm import tqdm
 from PIL import Image
 import numpy as np
-from concurrent.futures import ProcessPoolExecutor
+from scipy.ndimage import gaussian_filter
 
-def process_single(input_path, out_folder, row, col, counter, size, step):
+def process_single(input_path, out_folder, row, col, counter):
+    size = 512
     with rasterio.open(input_path) as src:
-        x_offset = col * step
-        y_offset = row * step
+        x_offset = col * size
+        y_offset = row * size
 
         if x_offset + size > src.width or y_offset + size > src.height:
-            return  # Skip this tile if it exceeds the image boundaries
+            raise ValueError("The image size is not sufficient for the specified grid.")
 
         window = Window(x_offset, y_offset, size, size)
         cropped_image = src.read(window=window)
@@ -33,26 +34,16 @@ def process_single(input_path, out_folder, row, col, counter, size, step):
 
 def process_all(input_folder, out_folder):
     counter = 1
-    size = 512
-    overlap = 256
-    step = size - overlap
-    tasks = []
-    with ProcessPoolExecutor() as executor:
-        for filename in tqdm(os.listdir(input_folder)):
-            if filename.endswith(".tif"):
-                input_path = os.path.join(input_folder, filename)
-                with rasterio.open(input_path) as src:
-                    rows = (src.height - overlap) // step + 1
-                    cols = (src.width - overlap) // step + 1
-                    for row in range(rows):
-                        for col in range(cols):
-                            tasks.append(executor.submit(process_single, input_path, out_folder, row, col, counter, size, step))
-                            counter += 1
-        for task in tqdm(tasks):
-            task.result()  # 等待所有任务完成
+    rows, cols = 5, 6
+    for filename in tqdm(os.listdir(input_folder)):
+        if filename.endswith(".tif"):
+            input_path = os.path.join(input_folder, filename)
+            for row in range(rows):
+                for col in range(cols):
+                    process_single(input_path, out_folder, row, col, counter)
+                    counter += 1
 
 if __name__ == "__main__":
     input_folder = "dataset/WHU"
-    out_folder = "dataset/WHU_512"
-    os.makedirs(out_folder, exist_ok=True)
+    out_folder = "dataset/WHU_512_full"
     process_all(input_folder, out_folder)
