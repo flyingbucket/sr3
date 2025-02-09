@@ -135,9 +135,9 @@ dmypy.json
 .vscode/
 
 # dataset
-dataset/
+dataset/*
 dataset.bak/
 *.zip
 
 # models and training logs
-experiments/
+experiments/*
