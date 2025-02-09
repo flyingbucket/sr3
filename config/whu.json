@@ -16,11 +16,11 @@
         "train": {
             "name": "WHU",
             "mode": "HR", // whether need LR img
-            "dataroot": "dataset/WHU_64_512",
+            "dataroot": "dataset/WHU_64_128",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64, // low resolution need to super_resolution
-            "r_resolution": 512, // high resolution
-            "batch_size": 3,
+            "r_resolution": 128, // high resolution
+            "batch_size": 20,
             "num_workers": 8,
             "use_shuffle": true,
             "data_len": -1, // -1 represents all data used in train
@@ -28,12 +28,12 @@
             "persistent_workers": true
         },
         "val": {
-            "name": "WHU_512",
+            "name": "WHU",
             "mode": "LRHR",
-            "dataroot": "dataset/WHU_64_512",
+            "dataroot": "dataset/WHU_64_128",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64,
-            "r_resolution": 512,
+            "r_resolution": 128,
             "data_len": 5
         }
     },
@@ -75,7 +75,7 @@
             }
         },
         "diffusion": {
-            "image_size": 512,
+            "image_size": 128,
             "channels": 3, //sample channel
             "conditional": true // unconditional generation or unconditional generation(super_resolution)
         }
