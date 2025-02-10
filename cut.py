@@ -45,5 +45,9 @@ def process_all(input_folder, out_folder):
 
 if __name__ == "__main__":
     input_folder = "dataset/WHU"
+<<<<<<< HEAD
     out_folder = "dataset/WHU_512_full"
+=======
+    out_folder = "dataset/WHU_512"
+>>>>>>> origin/sar_v1
     process_all(input_folder, out_folder)
