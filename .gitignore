@@ -137,15 +137,8 @@ dmypy.json
 # dataset
 dataset/
 dataset.bak/
-<<<<<<< HEAD
 DataStore/
 *.zip
 
 # models and training logs
 experiments/
-=======
-*.zip
-
-# models and training logs
-experiments/
->>>>>>> origin/sar_v1
