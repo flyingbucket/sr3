@@ -1,5 +1,5 @@
 {
-    "name": "WHU",
+    "name": "WHU_single",
     "phase": "train", // train or val
     "gpu_ids": [
         0
@@ -9,18 +9,31 @@
         "tb_logger": "tb_logger",
         "results": "results",
         "checkpoint": "checkpoint",
+<<<<<<< HEAD
         // "resume_state": "experiments/WHU_250308_133523/checkpoint/I5000_E38" //pretrain model or training state
         "resume_state": null
+=======
+        "resume_state": null //pretraddin model or training state
+        //"resume_state": "experiments/WHU_250208_133523/checkpoint/I5000_E38" //pretrain model or training state
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
     },
     "datasets": {
         "train": {
-            "name": "WHU",
+            "name": "WHU_single",
             "mode": "HR", // whether need LR img
+<<<<<<< HEAD
             "dataroot": "dataset/WHU_64_128",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64, // low resolution need to super_resolution
             "r_resolution": 128, // high resolution
             "batch_size": 20,
+=======
+            "dataroot": "dataset/WHU_512s_64_512",
+            "datatype": "img", //lmdb or img, path of img files
+            "l_resolution": 64, // low resolution need to super_resolution
+            "r_resolution": 512, // high resolution
+            "batch_size": 2,
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
             "num_workers": 8,
             "use_shuffle": true,
             "data_len": -1, // -1 represents all data used in train
@@ -28,6 +41,7 @@
             "persistent_workers": true
         },
         "val": {
+<<<<<<< HEAD
             "name": "WHU",
             "mode": "LRHR",
             "dataroot": "dataset/WHU_64_128",
@@ -35,14 +49,23 @@
             "l_resolution": 64,
             "r_resolution": 128,
             "data_len": 5
+=======
+            "name": "WHU_single",
+            "mode": "LRHR",
+            "dataroot": "dataset/WHU_512s_64_512",
+            "datatype": "img", //lmdb or img, path of img files
+            "l_resolution": 64,
+            "r_resolution": 512,
+            "data_len": 3
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
         }
     },
     "model": {
         "which_model_G": "sr3", // use the ddpm or sr3 network structure
         "finetune_norm": false,
         "unet": {
-            "in_channel": 6,
-            "out_channel": 3,
+            "in_channel": 2,
+            "out_channel": 1,
             "inner_channel": 64,
             "norm_groups": 16,
             "channel_multiplier": [
@@ -55,7 +78,11 @@
                 // 16
             ],
             "attn_res": [
+<<<<<<< HEAD
                64 
+=======
+                16
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
             ],
             "res_blocks": 1,
             "dropout": 0
@@ -63,24 +90,38 @@
         "beta_schedule": { // use munual beta_schedule for acceleration
             "train": {
                 "schedule": "linear",
+<<<<<<< HEAD
                 "n_timestep": 200,
+=======
+                "n_timestep": 2000,
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
                 "linear_start": 1e-6,
                 "linear_end": 1e-2
             },
             "val": {
                 "schedule": "linear",
+<<<<<<< HEAD
                 "n_timestep": 200,
+=======
+                "n_timestep": 2000,
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
                 "linear_start": 1e-6,
                 "linear_end": 1e-2
             }
         },
         "diffusion": {
+<<<<<<< HEAD
             "image_size": 128,
             "channels": 3, //sample channel
+=======
+            "image_size": 512,
+            "channels": 1, //sample channel
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
             "conditional": true // unconditional generation or unconditional generation(super_resolution)
         }
     },
     "train": {
+<<<<<<< HEAD
         "n_iter": 100000,
         "val_freq": 1e3,
         "save_checkpoint_freq": 1e3,
@@ -91,6 +132,18 @@
         },
         "ema_scheduler": { // not used now
             "step_start_ema": 10000,
+=======
+        "n_iter": 1e6,
+        "val_freq": 1000,
+        "save_checkpoint_freq": 5000,
+        "print_freq": 100,
+        "optimizer": {
+            "type": "adam",
+            "lr": 3e-6
+        },
+        "ema_scheduler": { // not used now
+            "step_start_ema": 5000,
+>>>>>>> 94c44c6 (use single channel ,add to sar_1 branch)
             "update_ema_every": 1,
             "ema_decay": 0.99995
         }
