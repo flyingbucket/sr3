@@ -49,50 +49,46 @@ class LRHRDataset(Dataset):
         img_HR = None
         img_LR = None
 
-        # if self.datatype == 'lmdb':
-        #     with self.env.begin(write=False) as txn:
-        #         hr_img_bytes = txn.get(
-        #             'hr_{}_{}'.format(
-        #                 self.r_res, str(index).zfill(5)).encode('utf-8')
-        #         )
-        #         sr_img_bytes = txn.get(
-        #             'sr_{}_{}_{}'.format(
-        #                 self.l_res, self.r_res, str(index).zfill(5)).encode('utf-8')
-        #         )
-        #         if self.need_LR:
-        #             lr_img_bytes = txn.get(
-        #                 'lr_{}_{}'.format(
-        #                     self.l_res, str(index).zfill(5)).encode('utf-8')
-        #             )
-        #         # skip the invalid index
-        #         while (hr_img_bytes is None) or (sr_img_bytes is None):
-        #             new_index = random.randint(0, self.data_len-1)
-        #             hr_img_bytes = txn.get(
-        #                 'hr_{}_{}'.format(
-        #                     self.r_res, str(new_index).zfill(5)).encode('utf-8')
-        #             )
-        #             sr_img_bytes = txn.get(
-        #                 'sr_{}_{}_{}'.format(
-        #                     self.l_res, self.r_res, str(new_index).zfill(5)).encode('utf-8')
-        #             )
-        #             if self.need_LR:
-        #                 lr_img_bytes = txn.get(
-        #                     'lr_{}_{}'.format(
-        #                         self.l_res, str(new_index).zfill(5)).encode('utf-8')
-        #                 )
-        #         img_HR = Image.open(BytesIO(hr_img_bytes)).convert("L")
-        #         img_SR = Image.open(BytesIO(sr_img_bytes)).convert("L")
-        #         if self.need_LR:
-        #             img_LR = Image.open(BytesIO(lr_img_bytes)).convert("L")
-        # else:
-        #     img_HR = Image.open(self.hr_path[index]).convert("L")
-        #     img_SR = Image.open(self.sr_path[index]).convert("L")
-        #     if self.need_LR:
-        #         img_LR = Image.open(self.lr_path[index]).convert("L")
-        img_HR = Image.open(self.hr_path[index])
-        img_SR = Image.open(self.sr_path[index])
-        if self.need_LR:
-            img_LR = Image.open(self.lr_path[index])
+        if self.datatype == 'lmdb':
+            with self.env.begin(write=False) as txn:
+                hr_img_bytes = txn.get(
+                    'hr_{}_{}'.format(
+                        self.r_res, str(index).zfill(5)).encode('utf-8')
+                )
+                sr_img_bytes = txn.get(
+                    'sr_{}_{}_{}'.format(
+                        self.l_res, self.r_res, str(index).zfill(5)).encode('utf-8')
+                )
+                if self.need_LR:
+                    lr_img_bytes = txn.get(
+                        'lr_{}_{}'.format(
+                            self.l_res, str(index).zfill(5)).encode('utf-8')
+                    )
+                # skip the invalid index
+                while (hr_img_bytes is None) or (sr_img_bytes is None):
+                    new_index = random.randint(0, self.data_len-1)
+                    hr_img_bytes = txn.get(
+                        'hr_{}_{}'.format(
+                            self.r_res, str(new_index).zfill(5)).encode('utf-8')
+                    )
+                    sr_img_bytes = txn.get(
+                        'sr_{}_{}_{}'.format(
+                            self.l_res, self.r_res, str(new_index).zfill(5)).encode('utf-8')
+                    )
+                    if self.need_LR:
+                        lr_img_bytes = txn.get(
+                            'lr_{}_{}'.format(
+                                self.l_res, str(new_index).zfill(5)).encode('utf-8')
+                        )
+                img_HR = Image.open(BytesIO(hr_img_bytes)).convert("RGB")
+                img_SR = Image.open(BytesIO(sr_img_bytes)).convert("RGB")
+                if self.need_LR:
+                    img_LR = Image.open(BytesIO(lr_img_bytes)).convert("RGB")
+        else:
+            img_HR = Image.open(self.hr_path[index]).convert("RGB")
+            img_SR = Image.open(self.sr_path[index]).convert("RGB")
+            if self.need_LR:
+                img_LR = Image.open(self.lr_path[index]).convert("RGB")
         if self.need_LR:
             [img_LR, img_SR, img_HR] = Util.transform_augment(
                 [img_LR, img_SR, img_HR], split=self.split, min_max=(-1, 1))

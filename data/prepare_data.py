@@ -41,7 +41,8 @@ def resize_multiple(img, sizes=(16, 128), resample=Image.BICUBIC, lmdb_save=Fals
 
 def resize_worker(img_file, sizes, resample, lmdb_save=False):
     img = Image.open(img_file)
-    img = img.convert('RGB')
+    # img = img.convert('RGB')
+    img=img.convert('L')
     out = resize_multiple(
         img, sizes=sizes, resample=resample, lmdb_save=lmdb_save)
 

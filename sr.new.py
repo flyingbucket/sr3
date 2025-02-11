@@ -116,31 +116,8 @@ if __name__ == "__main__":
                         visuals = diffusion.get_current_visuals()
                         sr_img = Metrics.tensor2img(visuals['SR'])  # uint8
                         hr_img = Metrics.tensor2img(visuals['HR'])  # uint8
-                        lr_img = Metrics.tensor2img(visuals['LR'])
-                        fake_img = Metrics.tensor2img(visuals['INF'])
-                        if sr_img is not None and len(image.shape) == 3 and image.shape[2] == 3:
-                            print("该图像是三通道（RGB）")
-                            B, G, R = cv2.split(image)
-                            gray_R = R.copy()
-                            gray_G = G.copy()
-                            gray_B = B.copy()
-                            grayscale_images = {
-                                "gray_R": gray_R,
-                                "gray_G": gray_G,
-                                "gray_B": gray_B
-                            }
-                            gray_image = cv2.cvtColor(sr_img, cv2.COLOR_BGR2GRAY)
-                            Metrics.save_img(
-                                gray_R, '{}/{}_{}_grey_r.png'.format(result_path, current_step, idx))
-                            Metrics.save_img(
-                                gray_G, '{}/{}_{}_grey_g.png'.format(result_path, current_step, idx))
-                            Metrics.save_img(
-                                gray_B, '{}/{}_{}_grey_b.png'.format(result_path, current_step, idx))
-                            Metrics.save_img(
-                                gray_image, '{}/{}_{}_grey_sr.png'.format(result_path, current_step, idx))
-                        else:
-                            print("该图像不是三通道（RGB），请检查输入文件")
-
+                        lr_img = Metrics.tensor2img(visuals['LR'])  # uint8
+                        fake_img = Metrics.tensor2img(visuals['INF'])  # uint8
 
                         # generation
                         Metrics.save_img(
@@ -151,13 +128,30 @@ if __name__ == "__main__":
                             lr_img, '{}/{}_{}_lr.png'.format(result_path, current_step, idx))
                         Metrics.save_img(
                             fake_img, '{}/{}_{}_inf.png'.format(result_path, current_step, idx))
-                        tb_logger.add_image(
-                            'Iter_{}'.format(current_step),
-                            np.transpose(np.concatenate(
-                                (fake_img, sr_img, hr_img), axis=1), [2, 0, 1]),
-                            idx)
+                        
+                        # 添加通道维度信息(H, W) -> (H, W, 1)
+                        fake_img = np.expand_dims(fake_img, axis=-1)
+                        sr_img = np.expand_dims(sr_img, axis=-1)
+                        hr_img = np.expand_dims(hr_img, axis=-1)
+
+                        # 拼接 (H, W, C) -> (H, 3W, 1)
+                        img_concat = np.concatenate((fake_img, sr_img, hr_img), axis=1)
+
+                        # 转换维度 (H, W, C) -> (C, H, W) 适配 TensorBoard
+                        img_tensor = np.transpose(img_concat, [2, 0, 1])  # 变成 (1, H, 3W)
+
+                        # 记录到 TensorBoard
+                        tb_logger.add_image(f'Iter_{current_step}', img_tensor, idx)
+
+                        
+                        
+                        # tb_logger.add_image(
+                        #     'Iter_{}'.format(current_step),
+                        #     np.transpose(np.concatenate(
+                        #         (fake_img, sr_img, hr_img), axis=1), [2, 0, 1]),
+                        #     idx)
                         avg_psnr += Metrics.calculate_psnr(
-                            grey_img, hr_img)
+                            sr_img, hr_img)
 
                         if wandb_logger:
                             wandb_logger.log_image(
@@ -184,6 +178,7 @@ if __name__ == "__main__":
                         val_step += 1
 
                 if current_step % opt['train']['save_checkpoint_freq'] == 0:
+                # if True:
                     logger.info('Saving models and training states.')
                     diffusion.save_network(current_epoch, current_step)
 
