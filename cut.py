@@ -57,8 +57,8 @@ def process_all(input_folder, out_folder):
             task.result()  # 等待所有任务完成
 
 if __name__ == "__main__":
-    input_folder = "dataset/WHU"
-    out_folder = "dataset/WHU_512_single"
+    input_folder = "../datastore/WHU_mountain"
+    out_folder = "dataset/WHU_512_mountain"
     os.makedirs(out_folder, exist_ok=True)
     process_all(input_folder, out_folder)
     print("All done!")
