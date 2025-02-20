@@ -37,6 +37,18 @@ def save_img(img, img_path, mode='RGB'):
     else:  # RGB image
         cv2.imwrite(img_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
+# def save_img(img, img_path, mode='RGB'):
+#     print(f"Image shape: {img.shape}, dtype: {img.dtype}")
+
+#     if len(img.shape) == 2:  # 处理灰度图
+#         cv2.imwrite(img_path, img)
+#     elif len(img.shape) == 3 and img.shape[2] == 1:  # 如果是 (H, W, 1) 需要去掉通道维度
+#         img = img[:, :, 0]  # 转换为 (H, W)
+#         cv2.imwrite(img_path, img)
+#     else:  # 处理RGB图像
+#         cv2.imwrite(img_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+
+
 
 def calculate_psnr(img1, img2):
     # img1 and img2 have range [0, 255]
