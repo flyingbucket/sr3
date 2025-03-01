@@ -134,11 +134,12 @@ if __name__ == "__main__":
                         sr_img = np.expand_dims(sr_img, axis=-1)
                         hr_img = np.expand_dims(hr_img, axis=-1)
 
+                        # breakpoint()
                         # 拼接 (H, W, C) -> (H, 3W, 1)
                         img_concat = np.concatenate((fake_img, sr_img, hr_img), axis=1)
 
                         # 转换维度 (H, W, C) -> (C, H, W) 适配 TensorBoard
-                        img_tensor = np.transpose(img_concat, [2, 0, 1])  # 变成 (1, H, 3W)
+                        img_tensor = np.transpose(img_concat, (2, 0, 1))  # 变成 (1, H, 3W)
 
                         # 记录到 TensorBoard
                         tb_logger.add_image(f'Iter_{current_step}', img_tensor, idx)
