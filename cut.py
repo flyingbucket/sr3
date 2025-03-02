@@ -38,8 +38,8 @@ def process_single(input_path, out_folder, row, col, counter, size, step):
 
 def process_all(input_folder, out_folder):
     counter = 1
-    size = 512
-    overlap = 256
+    size = 1024
+    overlap = 512
     step = size - overlap
     tasks = []
     with ProcessPoolExecutor() as executor:
@@ -57,8 +57,8 @@ def process_all(input_folder, out_folder):
             task.result()  # 等待所有任务完成
 
 if __name__ == "__main__":
-    input_folder = "../datastore/WHU_mountain"
-    out_folder = "dataset/WHU_512_mountain"
+    input_folder = "DataStore/WHU"
+    out_folder = "dataset/WHU_1024"
     os.makedirs(out_folder, exist_ok=True)
     process_all(input_folder, out_folder)
     print("All done!")

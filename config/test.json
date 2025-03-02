@@ -1,0 +1,103 @@
+{
+    "name": "WHU_single_mountain_val",
+    "phase": "train", // train or val
+    "gpu_ids": [
+       0 
+    ],
+    "path": { //set the path
+        "log": "logs",
+        "tb_logger": "tb_logger",
+        "results": "results",
+        "checkpoint": "checkpoint",
+        "resume_state": null //pretraddin model or training state
+       // "resume_state":"/home/lml/sr3_single/sr3/experiments/WHU_single_mountain--42w-50w/checkpoint/I450000_E101"
+    },
+    "datasets": {
+        "train": {
+            "name": "WHU_1024",
+            "mode": "HR", // whether need LR img
+            "dataroot": "dataset/WHU_128_1024",
+            "datatype": "img", //lmdb or img, path of img files
+            "l_resolution": 128, // low resolution need to super_resolution
+            "r_resolution": 1024, // high resolution
+            "batch_size": 2,
+            "num_workers": 8,
+            "use_shuffle": true,
+            "data_len": -1, // -1 represents all data used in train
+            "pin_memory": true,
+            "persistent_workers": true
+        },
+        "val": {
+            "name": "WHU_1024",
+            "mode": "LRHR",
+            "dataroot": "dataset/WHU_128_1024",
+            "datatype": "img", //lmdb or img, path of img files
+            "l_resolution": 128,
+            "r_resolution": 1024,
+            "data_len": 50
+        }
+    },
+    "model": {
+        "which_model_G": "sr3", // use the ddpm or sr3 network structure
+        "finetune_norm": false,
+        "unet": {
+            "in_channel": 2,
+            "out_channel": 1,
+            "inner_channel": 64,
+            "norm_groups": 16,
+            "channel_multiplier": [
+                1,
+                2,
+                4,
+                // 8,
+                // 16
+                8
+                // 16
+            ],
+            "attn_res": [
+                16
+            ],
+            "res_blocks": 1,
+            "dropout": 0
+        },
+        "beta_schedule": { // use munual beta_schedule for acceleration
+            "train": {
+                "schedule": "linear",
+                "n_timestep": 3000,
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
+            },
+            "val": {
+                "schedule": "linear",
+                "n_timestep": 3,
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
+            }
+        },
+        "diffusion": {
+            "image_size": 1024,
+            "channels": 1, //sample channel
+            "conditional": true // unconditional generation or unconditional generation(super_resolution)
+        }
+    },
+    "train": {
+        "n_iter": 1e6,
+        "val_freq": 1000,
+        "save_checkpoint_freq": 5000,
+        "print_freq": 50,
+        "optimizer": {
+            "type": "adam",
+            "lr": 1e-6
+        },
+        "ema_scheduler": { // not used now
+            "step_start_ema": 5000,
+            "update_ema_every": 1,
+            "ema_decay": 0.9999
+        }
+    },
+    "wandb": {
+        "project": "sar sr"
+    },
+    "enable_wandb": true ,
+    "log_wandb_ckpt": true
+}
