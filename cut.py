@@ -5,6 +5,11 @@ from tqdm import tqdm
 from PIL import Image
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
+import warnings
+from rasterio.errors import NotGeoreferencedWarning
+
+# 只显示 NotGeoreferencedWarning 一次
+warnings.simplefilter("ignore", NotGeoreferencedWarning)
 
 def process_single(input_path, out_folder, row, col, counter, size, step):
     with rasterio.open(input_path) as src:
@@ -38,8 +43,8 @@ def process_single(input_path, out_folder, row, col, counter, size, step):
 
 def process_all(input_folder, out_folder):
     counter = 1
-    size = 1024
-    overlap = 512
+    size = 512
+    overlap = 256
     step = size - overlap
     tasks = []
     with ProcessPoolExecutor() as executor:
@@ -58,7 +63,7 @@ def process_all(input_folder, out_folder):
 
 if __name__ == "__main__":
     input_folder = "DataStore/WHU"
-    out_folder = "dataset/WHU_1024"
+    out_folder = "dataset/WHU_512"
     os.makedirs(out_folder, exist_ok=True)
     process_all(input_folder, out_folder)
     print("All done!")

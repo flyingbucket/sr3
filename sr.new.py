@@ -219,8 +219,8 @@ if __name__ == "__main__":
             else:
                 # grid img
                 sr_img = Metrics.tensor2img(visuals['SR'])  # uint8
-                Metrics.save_img(
-                    sr_img, '{}/{}_{}_sr_process.png'.format(result_path, current_step, idx))
+                # Metrics.save_img(
+                #     sr_img, '{}/{}_{}_sr_process.png'.format(result_path, current_step, idx))
                 Metrics.save_img(
                     Metrics.tensor2img(visuals['SR'][-1]), '{}/{}_{}_sr.png'.format(result_path, current_step, idx))
 

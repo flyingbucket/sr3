@@ -1,8 +1,8 @@
 {
-    "name": "WHU_single_mountain_val",
+    "name": "whu_single_val_38w",
     "phase": "train", // train or val
     "gpu_ids": [
-        0
+        1
     ],
     "path": { //set the path
         "log": "logs",
@@ -10,13 +10,13 @@
         "results": "results",
         "checkpoint": "checkpoint",
         // "resume_state": null //pretraddin model or training state
-        "resume_state":"/home/lml/sr3_single/sr3/experiments/WHU_single_mountain--42w-50w/checkpoint/I450000_E101"
+        "resume_state":"experiments/pre/I380000_E85"
     },
     "datasets": {
         "train": {
             "name": "WHU_mountain",
             "mode": "HR", // whether need LR img
-            "dataroot": "dataset/WHU_mountain_64_512",
+            "dataroot": "dataset/whu_single_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64, // low resolution need to super_resolution
             "r_resolution": 512, // high resolution
@@ -30,11 +30,11 @@
         "val": {
             "name": "WHU_single",
             "mode": "LRHR",
-            "dataroot": "dataset/WHU_mountain_64_512",
+            "dataroot": "dataset/whu_single_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64,
             "r_resolution": 512,
-            "data_len": 50
+            "data_len": -1
         }
     },
     "model": {
@@ -69,7 +69,7 @@
             },
             "val": {
                 "schedule": "linear",
-                "n_timestep": 3,
+                "n_timestep": 2000,
                 "linear_start": 1e-6,
                 "linear_end": 1e-2
             }
