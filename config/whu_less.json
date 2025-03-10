@@ -2,7 +2,7 @@
   "name": "WHU_single_less",
   "phase": "train", // train or val
   "gpu_ids": [
-    3
+    2
   ],
   "path": { //set the path
     "log": "logs",
@@ -63,13 +63,13 @@
     "beta_schedule": { // use munual beta_schedule for acceleration
       "train": {
         "schedule": "linear",
-        "n_timestep": 3000,
+        "n_timestep": 2000,
         "linear_start": 1e-6,
         "linear_end": 1e-2
       },
       "val": {
         "schedule": "linear",
-        "n_timestep": 3,
+        "n_timestep": 2000,
         "linear_start": 1e-6,
         "linear_end": 1e-2
       }
@@ -81,7 +81,7 @@
     }
   },
   "train": {
-    "n_iter": 1e6,
+    "n_iter": 150000,
     "val_freq": 1000,
     "save_checkpoint_freq": 5000,
     "print_freq": 100,
