@@ -141,4 +141,4 @@ DataStore/
 *.zip
 
 # models and training logs
-experiments/
+experiments/*
