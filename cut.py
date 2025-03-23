@@ -75,8 +75,8 @@ def process_all(input_folder, out_folder):
 
 
 if __name__ == "__main__":
-    input_folder = "DataStore/WHU"
-    out_folder = "dataset/WHU_512"
+    input_folder = input("enter input folder like DataStore/WHU")
+    out_folder = input("enter output folder like dataset/WHU_512")
     os.makedirs(out_folder, exist_ok=True)
     process_all(input_folder, out_folder)
     print("All done!")
