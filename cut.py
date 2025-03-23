@@ -13,6 +13,7 @@ warnings.simplefilter("ignore", NotGeoreferencedWarning)
 
 
 def process_single(input_path, out_folder, row, col, counter, size, step):
+    picname = os.path.basename(input_path)
     with rasterio.open(input_path) as src:
         x_offset = col * step
         y_offset = row * step
@@ -29,7 +30,7 @@ def process_single(input_path, out_folder, row, col, counter, size, step):
 
         # out_path = os.path.join(out_folder, f"{counter:04d}.png")
 
-        out_path = os.path.join(out_folder, f"{row}_{col}.png")
+        out_path = os.path.join(out_folder, f"{picname}_{row}_{col}.png")
         with rasterio.open(out_path, "w", **meta) as dst:
             dst.write(cropped_image)
 
