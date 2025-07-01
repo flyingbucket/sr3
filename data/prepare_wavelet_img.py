@@ -18,8 +18,8 @@ def resize(img, size, resample):
 def wavelet_decompose(img: Image.Image):
     """Apply 2D Haar wavelet transform to grayscale image."""
     arr = np.array(img).astype(np.float32) / 255.0
-    coeffs2 = pywt.dwt2(arr, 'haar')
-    LL, (LH, HL, HH) = coeffs2
+    coeffs2 = pywt.swt2(arr,'haar',level=1)
+    LL, (LH, HL, HH) = coeffs2[0]
     wave = np.stack([LL, LH, HL, HH], axis=-1)
     return wave.astype(np.float32)  # shape (H/2, W/2, 4)
 
