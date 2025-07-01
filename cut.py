@@ -81,3 +81,4 @@ if __name__ == "__main__":
     os.makedirs(out_folder, exist_ok=True)
     process_all(input_folder, out_folder)
     print("All done!")
+# change
