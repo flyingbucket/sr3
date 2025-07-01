@@ -4,7 +4,8 @@ from PIL import Image
 from torch.utils.data import Dataset
 import random
 import data.util as Util
-
+import numpy as np
+import torch
 
 class LRHRDataset(Dataset):
     def __init__(self, dataroot, datatype, l_resolution=16, r_resolution=128, split='train', data_len=-1, need_LR=False):
@@ -86,7 +87,9 @@ class LRHRDataset(Dataset):
                     img_LR = Image.open(BytesIO(lr_img_bytes)).convert("L")
         else:
             img_HR = Image.open(self.hr_path[index]).convert("L")
-            img_SR = Image.open(self.sr_path[index])
+            img_SR = np.load(self.sr_path[index]).astype(np.float32)
+            img_SR = torch.from_numpy(img_SR).permute(2, 0, 1) 
+            # img_SR = Image.open(self.sr_path[index])
             if self.need_LR:
                 img_LR = Image.open(self.lr_path[index]).convert("L")
         # img_HR = Image.open(self.hr_path[index])
