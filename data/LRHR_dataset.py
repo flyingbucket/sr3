@@ -89,8 +89,8 @@ class LRHRDataset(Dataset):
             img_SR = Image.open(self.sr_path[index]).convert("L")
             if self.need_LR:
                 img_LR = Image.open(self.lr_path[index]).convert("L")
-        img_HR = Image.open(self.hr_path[index])
-        img_SR = Image.open(self.sr_path[index])
+        # img_HR = Image.open(self.hr_path[index])
+        # img_SR = Image.open(self.sr_path[index])
         if self.need_LR:
             img_LR = Image.open(self.lr_path[index])
         if self.need_LR:
