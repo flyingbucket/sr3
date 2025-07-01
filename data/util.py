@@ -81,17 +81,30 @@ hflip = torchvision.transforms.RandomHorizontalFlip()
 #         imgs = torch.unbind(imgs, dim=0)
 #     ret_img = [img * (min_max[1] - min_max[0]) + min_max[0] for img in imgs]
 #     return ret_img
+# def transform_augment(img_list, split='val', min_max=(0, 1)):
+#     # 安全转换为 Tensor
+#     imgs = [
+#         totensor(img) if not isinstance(img, torch.Tensor) else img
+#         for img in img_list
+#     ]
+
+#     if split == 'train':
+#         imgs = torch.stack(imgs, 0)
+#         imgs = hflip(imgs)  # 你自己定义的翻转函数
+#         imgs = torch.unbind(imgs, dim=0)
+
+#     ret_img = [img * (min_max[1] - min_max[0]) + min_max[0] for img in imgs]
+#     return ret_img
+
 def transform_augment(img_list, split='val', min_max=(0, 1)):
-    # 安全转换为 Tensor
     imgs = [
         totensor(img) if not isinstance(img, torch.Tensor) else img
         for img in img_list
     ]
 
     if split == 'train':
-        imgs = torch.stack(imgs, 0)
-        imgs = hflip(imgs)  # 你自己定义的翻转函数
-        imgs = torch.unbind(imgs, dim=0)
+        hflip = torchvision.transforms.RandomHorizontalFlip(p=1.0)
+        imgs = [hflip(img) for img in imgs]
 
     ret_img = [img * (min_max[1] - min_max[0]) + min_max[0] for img in imgs]
     return ret_img
