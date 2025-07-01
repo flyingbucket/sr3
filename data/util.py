@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG',
-                  '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP']
+                  '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP','npy']
 
 
 def is_image_file(filename):
