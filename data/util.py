@@ -73,11 +73,25 @@ def transform2tensor(img, min_max=(0, 1)):
 # implementation by torchvision, detail in https://github.com/Janspiry/Image-Super-Resolution-via-Iterative-Refinement/issues/14
 totensor = torchvision.transforms.ToTensor()
 hflip = torchvision.transforms.RandomHorizontalFlip()
-def transform_augment(img_list, split='val', min_max=(0, 1)):    
-    imgs = [totensor(img) for img in img_list]
+# def transform_augment(img_list, split='val', min_max=(0, 1)):    
+#     imgs = [totensor(img) for img in img_list]
+#     if split == 'train':
+#         imgs = torch.stack(imgs, 0)
+#         imgs = hflip(imgs)
+#         imgs = torch.unbind(imgs, dim=0)
+#     ret_img = [img * (min_max[1] - min_max[0]) + min_max[0] for img in imgs]
+#     return ret_img
+def transform_augment(img_list, split='val', min_max=(0, 1)):
+    # 安全转换为 Tensor
+    imgs = [
+        totensor(img) if not isinstance(img, torch.Tensor) else img
+        for img in img_list
+    ]
+
     if split == 'train':
         imgs = torch.stack(imgs, 0)
-        imgs = hflip(imgs)
+        imgs = hflip(imgs)  # 你自己定义的翻转函数
         imgs = torch.unbind(imgs, dim=0)
+
     ret_img = [img * (min_max[1] - min_max[0]) + min_max[0] for img in imgs]
     return ret_img
