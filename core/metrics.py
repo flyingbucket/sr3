@@ -2,6 +2,7 @@ import os
 import math
 import numpy as np
 import cv2
+import pywt
 from torchvision.utils import make_grid
 
 
@@ -37,6 +38,70 @@ def save_img(img, img_path, mode='RGB'):
     else:  # RGB image
         cv2.imwrite(img_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
+
+def save_tensor_channels(tensor, base_path, tag):
+    """
+    Save each channel of a 4-channel tensor (B, C, H, W) as grayscale PNG images.
+    """
+    if tensor.ndim != 4:
+        raise ValueError(f"Expected tensor with 4 dimensions (B, C, H, W), got {tensor.shape}")
+    
+    B, C, H, W = tensor.shape
+    tensor = tensor.detach().cpu().numpy()
+
+    for b in range(B):
+        for c in range(C):
+            img = tensor[b, c]
+            # normalize to [0, 255]
+            img_norm = (img - img.min()) / (img.max() - img.min() + 1e-8)
+            img_uint8 = (img_norm * 255).round().astype(np.uint8)
+            save_path = f"{base_path}/{tag}/b{b}_c{c}.png"
+            cv2.imwrite(save_path, img_uint8)
+
+def save_reverse_wavelet(tensor, result_path,tag,wavelet='haar'):
+    """
+    Reverse the wavelet transform of a tensor.
+    Args:
+        tensor (torch.Tensor): Input tensor of shape (B, C, H, W).
+        wavelet (str): Wavelet type, default is 'haar'.
+    Returns:
+        torch.Tensor: Reconstructed tensor.
+    """
+    if tensor.ndim != 4:
+        raise ValueError(f"Expected tensor with 4 dimensions (B, C, H, W), got {tensor.shape}")
+    
+    B, C, H, W = tensor.shape
+    tensor = tensor.detach().cpu().numpy()
+    
+    reconstructed = []
+    for b in range(B):
+        LL, LH, HL, HH = tensor[b]
+        coeffs = [ (LL, (LH, HL, HH)) ]  # list of one level
+        img = pywt.iswt2(coeffs, wavelet)
+        reconstructed.append(img)
+    
+    for i, img in enumerate(reconstructed):
+        # 将 float 类型归一化到 [0, 255]
+        img_uint8 = np.clip(img, 0, 1) * 255  # 如果图像在 [0,1]
+        img_uint8 = img_uint8.astype(np.uint8)
+        # 保存为 PNG 文件
+        cv2.imwrite(f'{result_path}/{tag}_reconstructed_b{i}.png', img_uint8)
+
+    return np.array(reconstructed)
+
+
+
+def wavelet_visual_pack_batch(img):
+    if img.ndim != 4:
+        raise ValueError(f"Expected shape (B,C,H,W), got {img.shape}")
+    
+    B,C,H,W = img.shape
+    img_viz_list = []
+    for b in range(B):
+        channels = [img[b, c] for c in range(C)]  # list of (H, W)
+        img_viz = np.concatenate(channels, axis=1)  # (H, 4W)
+        img_viz_list.append(img_viz)
+    return img_viz_list  # list of (H, 4W)
 # def save_img(img, img_path, mode='RGB'):
 #     print(f"Image shape: {img.shape}, dtype: {img.dtype}")
 

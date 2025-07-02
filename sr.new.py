@@ -102,6 +102,7 @@ if __name__ == "__main__":
                 # validation
                 if current_step % opt['train']['val_freq'] == 0:
                     avg_psnr = 0.0
+                    psnr_recon=0.0
                     idx = 0
                     result_path = '{}/{}'.format(opt['path']
                                                  ['results'], current_epoch)
@@ -114,53 +115,94 @@ if __name__ == "__main__":
                         diffusion.feed_data(val_data)
                         diffusion.test(continous=False)
                         visuals = diffusion.get_current_visuals()
-                        sr_img = Metrics.tensor2img(visuals['SR'])  # uint8
-                        hr_img = Metrics.tensor2img(visuals['HR'])  # uint8
-                        lr_img = Metrics.tensor2img(visuals['LR'])  # uint8
-                        fake_img = Metrics.tensor2img(visuals['INF'])  # uint8
+                        # sr_img = Metrics.tensor2img(visuals['SR'])  # uint8
+                        # hr_img = Metrics.tensor2img(visuals['HR'])  # uint8
+                        # lr_img = Metrics.tensor2img(visuals['LR'])  # uint8
+                        # fake_img = Metrics.tensor2img(visuals['INF'])  # uint8
 
-                        # generation
-                        Metrics.save_img(
-                            hr_img, '{}/{}_{}_hr.png'.format(result_path, current_step, idx))
-                        Metrics.save_img(
-                            sr_img, '{}/{}_{}_sr.png'.format(result_path, current_step, idx))
-                        Metrics.save_img(
-                            lr_img, '{}/{}_{}_lr.png'.format(result_path, current_step, idx))
-                        Metrics.save_img(
-                            fake_img, '{}/{}_{}_inf.png'.format(result_path, current_step, idx))
-                        
-                        # 添加通道维度信息(H, W) -> (H, W, 1)
-                        fake_img = np.expand_dims(fake_img, axis=-1)
-                        sr_img = np.expand_dims(sr_img, axis=-1)
-                        hr_img = np.expand_dims(hr_img, axis=-1)
+                        recon_sr=[]
+                        recon_hr=[]
+                        for name, img in visuals.items():
+                            if img.ndim == 4:
 
-                        # breakpoint()
-                        # 拼接 (H, W, C) -> (H, 3W, 1)
-                        img_concat = np.concatenate((fake_img, sr_img, hr_img), axis=1)
+                                # save wavelet channels and reverse wavelet images
+                                Metrics.save_tensor_channels(
+                                    img, result_path, name 
+                                )
+                                recon_imgs=Metrics.save_reverse_wavelet(
+                                    img, result_path, name, wavelet='haar'
+                                )
+                                if name=="HR":
+                                    recon_hr.append(recon_imgs)
+                                elif name=="SR":
+                                    recon_sr.append(recon_imgs)
+                                # pack wavelet channels for visualization on tensorboard
+                                viz_images = Metrics.wavelet_visual_pack_batch(img)
+                                for b, viz in enumerate(viz_images):
+                                    viz = np.expand_dims(viz, axis=0)  # (1, H, 4W)
+                                    tb_logger.add_image(f'{name}_wavelet_b{b}', viz, current_step)
+                        assert len(recon_sr) == len(recon_hr), "Reconstructed SR and HR images must have the same length"
+                        for sr_img, hr_img in zip(recon_sr, recon_hr):
+                            # Calculate PSNR for each pair of reconstructed images
+                            psnr_recon += Metrics.calculate_psnr(sr_img, hr_img)
 
-                        # 转换维度 (H, W, C) -> (C, H, W) 适配 TensorBoard
-                        img_tensor = np.transpose(img_concat, (2, 0, 1))  # 变成 (1, H, 3W)
-
-                        # 记录到 TensorBoard
-                        tb_logger.add_image(f'Iter_{current_step}', img_tensor, idx)
-
-                        
-                        
-                        # tb_logger.add_image(
-                        #     'Iter_{}'.format(current_step),
-                        #     np.transpose(np.concatenate(
-                        #         (fake_img, sr_img, hr_img), axis=1), [2, 0, 1]),
-                        #     idx)
+                        psnr_recon /= len(recon_sr)
                         avg_psnr += Metrics.calculate_psnr(
-                            sr_img, hr_img)
+                            visuals['SR'],visuals['HR'])
+                        # save wavelet channels and reverse wavelet images
+                        # for name,img in visuals.items():
+                        #     if img.ndim == 4:
+                        #         Metrics.save_tensor_channels(
+                        #             img, result_path, name 
+                        #         )
+                        #         recon_imgs=Metrics.save_reverse_wavelet(
+                        #             img, result_path, name, wavelet='haar'
+                        #         )
 
-                        if wandb_logger:
-                            wandb_logger.log_image(
-                                f'validation_{idx}', 
-                                np.concatenate((fake_img, sr_img, hr_img), axis=1)
-                            )
+
+
+                        # # generation
+                        # Metrics.save_img(
+                        #     hr_img, '{}/{}_{}_hr.png'.format(result_path, current_step, idx))
+                        # Metrics.save_img(
+                        #     sr_img, '{}/{}_{}_sr.png'.format(result_path, current_step, idx))
+                        # Metrics.save_img(
+                        #     lr_img, '{}/{}_{}_lr.png'.format(result_path, current_step, idx))
+                        # Metrics.save_img(
+                        #     fake_img, '{}/{}_{}_inf.png'.format(result_path, current_step, idx))
+                        
+                        # # 添加通道维度信息(H, W) -> (H, W, 1)
+                        # fake_img = np.expand_dims(fake_img, axis=-1)
+                        # sr_img = np.expand_dims(sr_img, axis=-1)
+                        # hr_img = np.expand_dims(hr_img, axis=-1)
+
+                        # print(f"Fake image shape: {fake_img.shape}")  # (H, W, 1)
+                        # print(f"SR image shape: {sr_img.shape}")      # (H, W, 1)
+                        # print(f"HR image shape: {hr_img.shape}")      # (H, W, 1)
+
+                        # def wavelet_visual_pack_batch(img):
+                        #     if img.ndim != 4:
+                        #         raise ValueError(f"Expected shape (H, W, C, B), got {img.shape}")
+                            
+                        #     H, W, C, B = img.shape
+                        #     img_viz_list = []
+                        #     for b in range(B):
+                        #         channels = [img[:, :, c, b] for c in range(C)]  # list of (H, W)
+                        #         img_viz = np.concatenate(channels, axis=1)  # (H, 4W)
+                        #         img_viz_list.append(img_viz)
+                        #     return img_viz_list  # list of (H, 4W)
+
+                        
+                        
+
+                        # if wandb_logger:
+                        #     wandb_logger.log_image(
+                        #         f'validation_{idx}', 
+                        #         np.concatenate((fake_img, sr_img, hr_img), axis=1)
+                        #     )
 
                     avg_psnr = avg_psnr / idx
+                    avg_psnr_recon = psnr_recon / idx
                     diffusion.set_new_noise_schedule(
                         opt['model']['beta_schedule']['train'], schedule_phase='train')
                     # log
@@ -168,26 +210,29 @@ if __name__ == "__main__":
                     logger_val = logging.getLogger('val')  # validation logger
                     logger_val.info('<epoch:{:3d}, iter:{:8,d}> psnr: {:.4e}'.format(
                         current_epoch, current_step, avg_psnr))
+                    logger.info('# Validation # Reconstructed psnr: {:.4e}'.format(avg_psnr_recon))  # Log reconstructed PSNR
+                    logger_val.info('<epoch:{:3d}, iter:{:8,d}> psnr_recon: {:.4e}'.format(
+                        current_epoch, current_step, avg_psnr_recon))
                     # tensorboard logger
                     tb_logger.add_scalar('psnr', avg_psnr, current_step)
-
-                    if wandb_logger:
-                        wandb_logger.log_metrics({
-                            'validation/val_psnr': avg_psnr,
-                            'validation/val_step': val_step
-                        })
-                        val_step += 1
+                    tb_logger.add_scalar('reconstructed_psnr', avg_psnr_recon, current_step)
+                    # if wandb_logger:
+                    #     wandb_logger.log_metrics({
+                    #         'validation/val_psnr': avg_psnr,
+                    #         'validation/val_step': val_step
+                    #     })
+                    #     val_step += 1
 
                 if current_step % opt['train']['save_checkpoint_freq'] == 0:
                 # if True:
                     logger.info('Saving models and training states.')
                     diffusion.save_network(current_epoch, current_step)
 
-                    if wandb_logger and opt['log_wandb_ckpt']:
-                        wandb_logger.log_checkpoint(current_epoch, current_step)
+            #         if wandb_logger and opt['log_wandb_ckpt']:
+            #             wandb_logger.log_checkpoint(current_epoch, current_step)
 
-            if wandb_logger:
-                wandb_logger.log_metrics({'epoch': current_epoch-1})
+            # if wandb_logger:
+            #     wandb_logger.log_metrics({'epoch': current_epoch-1})
 
         # save model
         logger.info('End of training.')
