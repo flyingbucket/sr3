@@ -3,6 +3,7 @@ import math
 import numpy as np
 import cv2
 import pywt
+import torch
 from torchvision.utils import make_grid
 
 
@@ -122,6 +123,10 @@ def wavelet_visual_pack_batch(img):
 
 
 def calculate_psnr(img1, img2):
+    if isinstance(img1, torch.Tensor):
+        img1 = img1.detach().cpu().numpy()
+    if isinstance(img2, torch.Tensor):
+        img2 = img2.detach().cpu().numpy()
     # img1 and img2 have range [0, 255]
     img1 = img1.astype(np.float64)
     img2 = img2.astype(np.float64)
