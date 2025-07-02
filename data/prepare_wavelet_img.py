@@ -39,8 +39,8 @@ def prepare_and_save(file, sizes, out_path):
 
     # Save
     img_lr.save(f'{out_path}/lr_{sizes[0]}/{key}.png')
-    np.save(f'{out_path}/sr_{sizes[0]}_{sizes[1]}/{key}.npy', wave_in)
-    np.save(f'{out_path}/hr_{sizes[1]}/{key}.npy', wave_target)
+    np.save(f'{out_path}/sr_{sizes[0]}_{sizes[1]}/{key}.npy', wave_in,allow_pickle=False)
+    np.save(f'{out_path}/hr_{sizes[1]}/{key}.npy', wave_target,allow_pickle=False)
 
 def main(img_dir, out_path, sizes):
     img_dir = Path(img_dir)
