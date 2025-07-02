@@ -191,6 +191,7 @@ class GaussianDiffusion(nn.Module):
             shape = x.shape
             img = torch.randn(shape, device=device)
             ret_img = x
+            ret_imgs=[]
             for i in tqdm(reversed(range(0, self.num_timesteps)), desc='sampling loop time step', total=self.num_timesteps):
                 # here we have a problem:when condition is true the source code doubles the input x,
                 # which works when hr and sr are both single channel images,
@@ -202,7 +203,9 @@ class GaussianDiffusion(nn.Module):
                 img = self.p_sample(img, i, condition_x=x)    # this is the original code
                 # img = self.p_sample(img, i, condition_x=None)  # this is my modification
                 if i % sample_inter == 0:
-                    ret_img = torch.cat([ret_img, img], dim=0)
+                    # ret_img = torch.cat([ret_img, img], dim=0)
+                    ret_imgs.append(img)
+            ret_img = torch.stack(ret_imgs, dim=0)  # shape: (T, B, C, H, W)
         if continous:
             return ret_img
         else:
