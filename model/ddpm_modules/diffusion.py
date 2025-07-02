@@ -199,10 +199,12 @@ class GaussianDiffusion(nn.Module):
 
     @torch.no_grad()
     def p_sample_loop(self, x_in, continous=False):
+        print(f"[ENTER] p_sample_loop")
         device = self.betas.device
         sample_inter = (1 | (self.num_timesteps//10))
 
         if not self.conditional:
+            print(f"[BUG] not conditional sampling")
             shape = x_in
             b = shape[0]
             img = torch.randn(shape, device=device)
@@ -216,6 +218,7 @@ class GaussianDiffusion(nn.Module):
         else:
             x = x_in
             shape = x.shape
+            print(f"[DEBUG] x shape: {shape}")
             b = shape[0]
             img = torch.randn(shape, device=device)
             ret_img = x
@@ -228,8 +231,10 @@ class GaussianDiffusion(nn.Module):
                 # if i % sample_inter == 0:
                 #     ret_img = torch.cat([ret_img, img], dim=0)
         if continous:
+            print(f"[DEBUG] continous ret_img shape: {ret_img.shape}")
             return ret_img
         else:
+            print(f"[DEBUG] not continous ret_img shape: {ret_img.shape}")
             return ret_img[-1]
 
     @torch.no_grad()
