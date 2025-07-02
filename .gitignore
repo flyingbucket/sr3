@@ -142,3 +142,6 @@ DataStore/
 
 # models and training logs
 experiments/*
+
+# notebook
+notebook/
