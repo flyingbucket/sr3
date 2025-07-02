@@ -69,13 +69,19 @@ def save_reverse_wavelet(tensor, result_path,tag,wavelet='haar'):
     """
     if tensor.ndim != 4:
         raise ValueError(f"Expected tensor with 4 dimensions (B, C, H, W), got {tensor.shape}")
-    
+    print(tag,tensor.shape)    
     B, C, H, W = tensor.shape
     tensor = tensor.detach().cpu().numpy()
     
     reconstructed = []
     for b in range(B):
-        LL, LH, HL, HH = tensor[b]
+
+        if C==4:
+            LL, LH, HL, HH = tensor[b]
+        elif C==5:
+            _, LL, LH, HL, HH = tensor[b]  # skip the first channel is original image
+        else:
+            raise ValueError(f"Expected 4 or 5 channels, got {C} channels")
         coeffs = [ (LL, (LH, HL, HH)) ]  # list of one level
         img = pywt.iswt2(coeffs, wavelet)
         reconstructed.append(img)
