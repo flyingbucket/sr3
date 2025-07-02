@@ -122,7 +122,10 @@ if __name__ == "__main__":
 
                         recon_sr=[]
                         recon_hr=[]
+                        print(f"[DEBUG] visuals.keys(): {list(visuals.keys())}")
+
                         for name, img in visuals.items():
+                            print(f"[DEBUG] {name} shape: {img.shape}")
                             if img.ndim == 4:
 
                                 # save wavelet channels and reverse wavelet images
@@ -133,14 +136,15 @@ if __name__ == "__main__":
                                     img, result_path, name, wavelet='haar'
                                 )
                                 if name=="HR":
-                                    recon_hr.append(recon_imgs)
+                                    recon_hr.extend(recon_imgs)
                                 elif name=="SR":
-                                    recon_sr.append(recon_imgs)
+                                    recon_sr.extend(recon_imgs)
                                 # pack wavelet channels for visualization on tensorboard
                                 viz_images = Metrics.wavelet_visual_pack_batch(img)
                                 for b, viz in enumerate(viz_images):
                                     viz = np.expand_dims(viz, axis=0)  # (1, H, 4W)
                                     tb_logger.add_image(f'{name}_wavelet_b{b}', viz, current_step)
+                        print(f"recon hr len :{len(recon_hr)}",f"recon sr len :{len(recon_sr)}")
                         assert len(recon_sr) == len(recon_hr), "Reconstructed SR and HR images must have the same length"
                         for sr_img, hr_img in zip(recon_sr, recon_hr):
                             # Calculate PSNR for each pair of reconstructed images
