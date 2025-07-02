@@ -68,6 +68,7 @@ class DDPM(BaseModel):
                     self.data['SR'], continous)
         self.netG.train()
 
+
     def sample(self, batch_size=1, continous=False):
         self.netG.eval()
         with torch.no_grad():

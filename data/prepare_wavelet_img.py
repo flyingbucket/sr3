@@ -7,6 +7,7 @@ from tqdm import tqdm
 import pywt
 import torchvision.transforms.functional as TF
 
+# 这个文件时有问题
 
 def resize(img, size, resample):
     if img.size[0] != size:
@@ -31,15 +32,15 @@ def prepare_and_save(file, sizes, out_path):
     # Resize
     img_hr = resize(img, sizes[1], Image.BICUBIC)
     img_lr = resize(img, sizes[0], Image.BICUBIC)
-
+    img_sr = resize(img_lr, sizes[1], Image.BICUBIC)
     # Wavelet
-    wave = wavelet_decompose(img_hr)
+    wave_target= wavelet_decompose(img_hr)
+    wave_in=wavelet_decompose(img_sr)
 
     # Save
     img_lr.save(f'{out_path}/lr_{sizes[0]}/{key}.png')
-    img_hr.save(f'{out_path}/hr_{sizes[1]}/{key}.png')
-    np.save(f'{out_path}/sr_{sizes[0]}_{sizes[1]}/{key}.npy', wave)
-
+    np.save(f'{out_path}/sr_{sizes[0]}_{sizes[1]}/{key}.npy', wave_in)
+    np.save(f'{out_path}/hr_{sizes[1]}/{key}.npy', wave_target)
 
 def main(img_dir, out_path, sizes):
     img_dir = Path(img_dir)

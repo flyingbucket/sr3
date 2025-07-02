@@ -192,7 +192,15 @@ class GaussianDiffusion(nn.Module):
             img = torch.randn(shape, device=device)
             ret_img = x
             for i in tqdm(reversed(range(0, self.num_timesteps)), desc='sampling loop time step', total=self.num_timesteps):
-                img = self.p_sample(img, i, condition_x=x)
+                # here we have a problem:when condition is true the source code doubles the input x,
+                # which works when hr and sr are both single channel images,
+                # but when we use multi-channel images, it will cause a problem.
+                # so i decided not to double the input x by setting condition_x=None
+
+                ### the upper comment is wrong,let me think
+
+                img = self.p_sample(img, i, condition_x=x)    # this is the original code
+                # img = self.p_sample(img, i, condition_x=None)  # this is my modification
                 if i % sample_inter == 0:
                     ret_img = torch.cat([ret_img, img], dim=0)
         if continous:
@@ -242,6 +250,10 @@ class GaussianDiffusion(nn.Module):
         else:
             x_recon = self.denoise_fn(
                 torch.cat([x_in['SR'], x_noisy], dim=1), continuous_sqrt_alpha_cumprod)
+
+        if x_recon.shape != x_start.shape:
+            raise ValueError(
+                f"Shape mismatch: x_recon {x_recon.shape} != x_start {x_start.shape}")
 
         loss = self.loss_func(noise, x_recon)
         return loss

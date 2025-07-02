@@ -16,12 +16,12 @@
     "datasets": {
         "train": {
             "name": "whu_wavelet",
-            "mode": "LRHR", // whether need LR img:HR means no LR img,LRHR means need LR img
+            "mode": "HR", // whether need LR img:HR means no LR img,LRHR means need LR img
             "dataroot": "dataset/whu_wavelet_img_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64, // low resolution need to super_resolution
             "r_resolution": 512, // high resolution
-            "batch_size": 2,
+            "batch_size": 1,
             "num_workers": 4,
             "use_shuffle": true,
             "data_len": -1, // -1 represents all data used in train
@@ -30,7 +30,7 @@
         },
         "val": {
             "name": "whu_wavelet",
-            "mode": "LRHR",
+            "mode": "HR",
             "dataroot": "dataset/whu_wavelet_img_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64,
@@ -42,8 +42,8 @@
         "which_model_G": "sr3", // use the ddpm or sr3 network structure
         "finetune_norm": false,
         "unet": {
-            "in_channel": 5,
-            "out_channel": 1,
+            "in_channel": 8,
+            "out_channel": 4,
             "inner_channel": 64,
             "norm_groups": 16,
             "channel_multiplier": [
@@ -83,9 +83,9 @@
     },
     "train": {
         "n_iter": 1e6,
-        "val_freq": 100,
+        "val_freq": 20,
         "save_checkpoint_freq": 5000,
-        "print_freq": 20,
+        "print_freq": 10,
         "optimizer": {
             "type": "adam",
             "lr": 1e-4

@@ -86,7 +86,9 @@ class LRHRDataset(Dataset):
                 if self.need_LR:
                     img_LR = Image.open(BytesIO(lr_img_bytes)).convert("L")
         else:
-            img_HR = Image.open(self.hr_path[index]).convert("L")
+            # img_HR = Image.open(self.hr_path[index]).convert("L")
+            img_HR = np.load(self.hr_path[index]).astype(np.float32)
+            img_HR = torch.from_numpy(img_HR).permute(2, 0, 1) 
             img_SR = np.load(self.sr_path[index]).astype(np.float32)
             img_SR = torch.from_numpy(img_SR).permute(2, 0, 1) 
             # img_SR = Image.open(self.sr_path[index])
