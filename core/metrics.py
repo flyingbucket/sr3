@@ -59,7 +59,7 @@ def save_tensor_channels(tensor, base_path, tag):
             save_path = f"{base_path}/{tag}/b{b}_c{c}.png"
             cv2.imwrite(save_path, img_uint8)
 
-def save_reverse_wavelet(tensor, result_path,tag,wavelet='haar'):
+def save_reverse_wavelet(tensor, result_path,tag,tb_logger,step,wavelet='haar'):
     """
     Reverse the wavelet transform of a tensor.
     Args:
@@ -93,7 +93,10 @@ def save_reverse_wavelet(tensor, result_path,tag,wavelet='haar'):
         img_uint8 = img_uint8.astype(np.uint8)
         # 保存为 PNG 文件
         cv2.imwrite(f'{result_path}/{tag}_reconstructed_b{i}.png', img_uint8)
-
+        if tb_logger is not None and step is not None:
+            img_tb = torch.from_numpy(img_uint8).float() / 255.0  # [H,W]
+            img_tb = img_tb.unsqueeze(0)  # [1,H,W]
+            tb_logger.add_image(f'{tag}_recon_b{i}', img_tb, step)
     return np.array(reconstructed)
 
 

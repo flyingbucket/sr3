@@ -9,7 +9,7 @@
         "tb_logger": "tb_logger",
         "results": "results",
         "checkpoint": "checkpoint",
-	"resume_state":null
+	"resume_state":"experiments/wavelet_250703_114811/checkpoint/I14000_E2"
         //"resume_state": "experiments/wavelet_250702_115005/checkpoint/I6000_E90" //pretraddin model or training state
         //"resume_state":"experiments/pre/I380000_E85"
     },
@@ -17,7 +17,7 @@
         "train": {
             "name": "whu_wavelet",
             "mode": "HR", // whether need LR img:HR means no LR img,LRHR means need LR img
-            "dataroot": "dataset/wavelet5_full_64_512",
+            "dataroot": "/home/lml/big_data/wavelet5_full_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64, // low resolution need to super_resolution
             "r_resolution": 512, // high resolution
@@ -31,7 +31,7 @@
         "val": {
             "name": "whu_wavelet",
             "mode": "HR",
-            "dataroot": "dataset/wavelet5_full_64_512",
+            "dataroot": "/home/lml/big_data/wavelet5_full_64_512",
             "datatype": "img", //lmdb or img, path of img files
             "l_resolution": 64,
             "r_resolution": 512,
@@ -83,7 +83,7 @@
     },
     "train": {
         "n_iter": 1e6,
-        "val_freq": 500,
+        "val_freq": 1000,
         "save_checkpoint_freq": 2000,
         "print_freq": 100,
         "optimizer": {
