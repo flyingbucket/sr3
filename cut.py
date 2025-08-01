@@ -1,100 +1,108 @@
 import os
 import argparse
-import rasterio
-from rasterio.windows import Window
-from tqdm import tqdm
-from PIL import Image
+import cv2
 import numpy as np
+from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
-import warnings
-from rasterio.errors import NotGeoreferencedWarning
-
-# 只显示 NotGeoreferencedWarning 一次
-warnings.simplefilter("ignore", NotGeoreferencedWarning)
 
 
-def process_single(input_path, out_folder, row, col, counter, size, step):
-    picname = os.path.basename(input_path)
-    with rasterio.open(input_path) as src:
-        x_offset = col * step
-        y_offset = row * step
+def normalize_image(img):
+    """将输入图像归一化为 [0, 1] 的 float32"""
+    if img.dtype == np.uint8:
+        return img.astype(np.float32) / 255.0
+    elif img.dtype == np.uint16:
+        return img.astype(np.float32) / 65535.0
+    elif img.dtype in [np.float32, np.float64]:
+        return np.clip(img, 0, 1).astype(np.float32)
+    else:
+        raise ValueError(f"Unsupported image dtype: {img.dtype}")
 
-        if x_offset + size > src.width or y_offset + size > src.height:
-            return  # Skip this tile if it exceeds the image boundaries
 
-        window = Window(x_offset, y_offset, size, size)
-        cropped_image = src.read(window=window)
-        meta = src.meta.copy()
-        meta.update(
-            {"width": size, "height": size, "transform": src.window_transform(window)}
-        )
+def save_png_tile(tile, out_path):
+    """将 tile 归一化为 uint8 并保存为 PNG 图像"""
+    tile_uint8 = (tile * 255).clip(0, 255).astype(np.uint8)
+    cv2.imwrite(out_path, tile_uint8)
 
-        # out_path = os.path.join(out_folder, f"{counter:04d}.png")
 
-        out_path = os.path.join(out_folder, f"{picname}_{row}_{col}.png")
-        with rasterio.open(out_path, "w", **meta) as dst:
-            dst.write(cropped_image)
+def process_single(input_path, out_folder, row, col, size, step):
+    picname = os.path.splitext(os.path.basename(input_path))[0]
+    img = cv2.imread(input_path, cv2.IMREAD_UNCHANGED)
+    if img is None:
+        print(f"Failed to read {input_path}")
+        return
 
-        # 将裁剪后的图像转换为 PNG 格式并保存
-        # cropped_image = np.moveaxis(cropped_image, 0, -1)  # 将波段轴移到最后
-        # if cropped_image.shape[2] == 1:  # 如果是单波段图像，转换为三通道
-        #     cropped_image = np.repeat(cropped_image, 3, axis=2)
+    img = normalize_image(img)
 
-        # cropped_image = cropped_image.astype(np.uint8)  # 确保数据类型为 uint8
-        # Image.fromarray(cropped_image).save(out_path)
+    height, width = img.shape[:2]
+    x_offset = col * step
+    y_offset = row * step
+
+    if x_offset + size > width or y_offset + size > height:
+        return  # Skip tile if out of bounds
+
+    tile = img[y_offset : y_offset + size, x_offset : x_offset + size]
+
+    # If image is grayscale (2D), keep it as is. Else, keep only first channel.
+    if tile.ndim == 2:
+        pass
+    elif tile.ndim == 3:
+        tile = tile[:, :, 0]  # Assume single channel is enough
+    else:
+        print(f"Unexpected tile shape: {tile.shape}")
+        return
+
+    out_path = os.path.join(out_folder, f"{picname}_{row}_{col}.png")
+    save_png_tile(tile, out_path)
 
 
 def process_all(input_folder, out_folder, size, overlap):
-    counter = 1
-    size = size
-    overlap = overlap
+    os.makedirs(out_folder, exist_ok=True)
     step = size - overlap
     tasks = []
+
     with ProcessPoolExecutor() as executor:
-        for filename in tqdm(os.listdir(input_folder)):
-            # if filename.endswith(".tif"):
+        for filename in tqdm(os.listdir(input_folder), desc="Reading input folder"):
+            if not filename.lower().endswith(
+                (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+            ):
+                continue
+
             input_path = os.path.join(input_folder, filename)
-            with rasterio.open(input_path) as src:
-                rows = (src.height - overlap) // step + 1
-                cols = (src.width - overlap) // step + 1
-                for row in range(rows):
-                    for col in range(cols):
-                        tasks.append(
-                            executor.submit(
-                                process_single,
-                                input_path,
-                                out_folder,
-                                row,
-                                col,
-                                counter,
-                                size,
-                                step,
-                            )
+            img = cv2.imread(input_path, cv2.IMREAD_UNCHANGED)
+            if img is None:
+                print(f"Failed to read {input_path}")
+                continue
+
+            img = normalize_image(img)
+            height, width = img.shape[:2]
+            rows = (height - overlap) // step
+            cols = (width - overlap) // step
+
+            for row in range(rows):
+                for col in range(cols):
+                    tasks.append(
+                        executor.submit(
+                            process_single,
+                            input_path,
+                            out_folder,
+                            row,
+                            col,
+                            size,
+                            step,
                         )
-                        counter += 1
-        for task in tqdm(tasks):
-            task.result()  # 等待所有任务完成
+                    )
+
+        # 等待所有任务完成
+        for task in tqdm(tasks, desc="Processing tiles"):
+            task.result()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--size", type=int, help="target size")
-    parser.add_argument("--overlap", type=int, help="overlap size when cutting")
-    parser.add_argument("--input_dir", type=str, help="Path to original images")
-    parser.add_argument("--out_dir", type=str, help="Path to output dir")
+    parser.add_argument("--input_folder", type=str, required=True)
+    parser.add_argument("--out_folder", type=str, required=True)
+    parser.add_argument("--size", type=int, default=512)
+    parser.add_argument("--overlap", type=int, default=32)
     args = parser.parse_args()
 
-    input_folder = args.input_dir
-    out_folder = args.out_dir
-    size = args.size
-    overlap = args.overlap
-
-    inputs = os.listdir(input_folder)
-    assert len(inputs) > 0, "Input folder should not be empty"
-    print(f"Found {len(inputs)} images in input_dir")
-    os.makedirs(out_folder, exist_ok=True)
-    print(f"Writing to {out_folder}")
-
-    process_all(input_folder, out_folder, size, overlap)
-    print("All done!")
-# change
+    process_all(args.input_folder, args.out_folder, args.size, args.overlap)
