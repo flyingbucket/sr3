@@ -31,8 +31,6 @@ def process_single(input_path, out_folder, row, col, size, step):
         print(f"Failed to read {input_path}")
         return
 
-    img = normalize_image(img)
-
     height, width = img.shape[:2]
     x_offset = col * step
     y_offset = row * step
