@@ -53,12 +53,12 @@ def process_single(input_path, out_folder, row, col, size, step):
     save_png_tile(tile, out_path)
 
 
-def process_all(input_folder, out_folder, size, overlap):
+def process_all(input_folder, out_folder, size, overlap, max_workers=32):
     os.makedirs(out_folder, exist_ok=True)
     step = size - overlap
     tasks = []
 
-    with ProcessPoolExecutor() as executor:
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for filename in tqdm(os.listdir(input_folder), desc="Reading input folder"):
             if not filename.lower().endswith(
                 (".tif", ".tiff", ".png", ".jpg", ".jpeg")
@@ -101,6 +101,9 @@ if __name__ == "__main__":
     parser.add_argument("--out_folder", type=str, required=True)
     parser.add_argument("--size", type=int, default=512)
     parser.add_argument("--overlap", type=int, default=32)
+    parser.add_argument("--max_workers", type=int, default=32)
     args = parser.parse_args()
 
-    process_all(args.input_folder, args.out_folder, args.size, args.overlap)
+    process_all(
+        args.input_folder, args.out_folder, args.size, args.overlap, args.max_workers
+    )
